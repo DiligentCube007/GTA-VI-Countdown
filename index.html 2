@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grand Theft Auto VI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto+Mono:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Default background, will be changed by JS */
+            background-image: url(https://cdn.mos.cms.futurecdn.net/hBWx3UpU2Je2zJqrHLyUQW.jpg);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            transition: background-image 0.7s ease-in-out; /* Smooth background transition */
+            overflow-x: hidden; 
+        }
+        .content-overlay {
+            background-color: rgba(0, 0, 0, 0.65); 
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            position: relative; /* For positioning the theme button */
+        }
+        .font-roboto-mono {
+            font-family: 'Roboto Mono', monospace;
+        }
+        .text-shadow {
+            text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+
+        .action-button { /* For the fact button */
+            transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+        }
+        .action-button:active {
+            transform: translateY(1px);
+        }
+        .fact-button {
+            background-color: #14b8a6; /* Teal-500 */
+        }
+        .fact-button:hover {
+            background-color: #0d9488; /* Teal-600 */
+        }
+        
+        .output-text-container {
+            min-height: 80px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .loader {
+            border: 4px solid #f3f3f330;
+            border-top: 4px solid #14b8a6; /* Teal for fact loader */
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Simple Theme Button Style */
+        .simple-theme-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent white */
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 6px 10px; /* Smaller padding */
+            border-radius: 0.375rem; /* rounded-md */
+            font-size: 0.875rem; /* text-sm */
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease, opacity 0.3s ease;
+            z-index: 10; 
+        }
+        .simple-theme-button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        .simple-theme-button:active {
+            transform: scale(0.95);
+        }
+        .simple-theme-button.loading { /* Style for button when preloading */
+            opacity: 0.7;
+            cursor: wait;
+        }
+    </style>
+</head>
+<body class="text-white min-h-screen flex flex-col items-center justify-center p-4 selection:bg-teal-500 selection:text-white">
+
+    <div id="contentCard" class="content-overlay p-6 sm:p-8 rounded-2xl shadow-2xl w-full max-w-md sm:max-w-lg border border-white/10">
+        <button id="changeThemeButton" class="simple-theme-button">
+            🎨
+        </button>
+
+        <h1 id="mainTitle" class="text-xl sm:text-2xl font-semibold text-center text-pink-300 tracking-wide text-shadow mb-6 sm:mb-8">Grand Theft Auto VI</h1>
+
+        <div class="text-center my-4 sm:my-6">
+            <div id="percentageText" class="font-roboto-mono text-4xl sm:text-5xl lg:text-6xl font-bold text-teal-300 text-shadow">
+                0.000%
+            </div>
+            <p id="completedLabel" class="text-sm font-medium text-purple-200/70 tracking-widest uppercase mt-2">Completed</p>
+        </div>
+        
+        <div class="flex justify-around text-center my-6 text-shadow">
+            <div>
+                <span id="days" class="font-roboto-mono text-2xl sm:text-3xl font-bold text-pink-300">0</span>
+                <span id="daysLabel" class="block text-xs text-purple-200/70 uppercase tracking-widest">Days</span>
+            </div>
+            <div>
+                <span id="hours" class="font-roboto-mono text-2xl sm:text-3xl font-bold text-pink-300">00</span>
+                <span id="hoursLabel" class="block text-xs text-purple-200/70 uppercase tracking-widest">Hours</span>
+            </div>
+            <div>
+                <span id="minutes" class="font-roboto-mono text-2xl sm:text-3xl font-bold text-pink-300">00</span>
+                <span id="minutesLabel" class="block text-xs text-purple-200/70 uppercase tracking-widest">Minutes</span>
+            </div>
+            <div>
+                <span id="seconds" class="font-roboto-mono text-2xl sm:text-3xl font-bold text-pink-300">00</span>
+                <span id="secondsLabel" class="block text-xs text-purple-200/70 uppercase tracking-widest">Seconds</span>
+            </div>
+        </div>
+        
+        <div class="w-full bg-black/30 rounded-md h-3 my-6 sm:my-8 shadow-inner">
+            <div id="progressBar" class="bg-pink-500 h-3 rounded-md transition-all duration-100 ease-linear"></div>
+        </div>
+
+        <div class="text-center text-xs space-y-1 sm:space-y-2 mb-6">
+            <p><span class="font-semibold text-purple-200/70">Start:</span> <span id="startDateDisplay" class="text-purple-200/70"></span></p>
+            <p><span class="font-semibold text-purple-200/70">Target:</span> <span id="targetDateDisplay" class="text-purple-200/70"></span></p>
+        </div>
+
+        <div class="mt-6 space-y-4">
+            <div class="text-center">
+                <button id="generateFactButton" class="action-button fact-button text-white font-semibold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-opacity-75 w-full sm:w-auto">
+                    ✨ Get a Fun Fact ✨
+                </button>
+                <div class="output-text-container mt-3 p-3 rounded-lg text-sm text-left min-h-[60px] flex items-center justify-center">
+                    <span id="factText" class="text-purple-200/90">Click for a fun fact about Rockstar Games!</span>
+                    <div id="loadingIndicator" class="loader hidden"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Configuration ---
+        const startDate = new Date(Date.UTC(2025, 4, 26, 0, 0, 0)); 
+        const targetDate = new Date(Date.UTC(2026, 4, 26, 0, 0, 0)); 
+
+        // --- Background Image URLs (Your provided list) ---
+        const backgroundImages = [
+            // Ensure these are direct links to image files (e.g., .jpg, .png)
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Ambrosia_01.jpg', name: 'Ambrosia_01' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Ambrosia_02.jpg', name: 'Ambrosia_02' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Ambrosia_03.jpg', name: 'Ambrosia_03' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Ambrosia_04.jpg', name: 'Ambrosia_04' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Ambrosia_05.jpg', name: 'Ambrosia_05' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Brian_Heder_landscape.jpg', name: 'Brian_Heder_landscape' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Grassrivers_01.jpg', name: 'Grassrivers_01' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Grassrivers_02.jpg', name: 'Grassrivers_02' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Grassrivers_03.jpg', name: 'Grassrivers_03' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Grassrivers_04.jpg', name: 'Grassrivers_04' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Jason_and_Lucia_01_landscape.jpg', name: 'Jason_and_Lucia_01_landscape' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Jason_and_Lucia_02_With_Logos_landscape.jpg', name: 'Jason_and_Lucia_02_With_Logos_landscape' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Jason_and_Lucia_Motel_landscape.jpg', name: 'Jason_and_Lucia_Motel_landscape' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Leonida_Keys_01.jpg', name: 'Leonida_Keys_01' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Leonida_Keys_02.jpg', name: 'Leonida_Keys_02' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Leonida_Keys_03.jpg', name: 'Leonida_Keys_03' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Leonida_Keys_04.jpg', name: 'Leonida_Keys_04' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Leonida_Keys_05.jpg', name: 'Leonida_Keys_05' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Mount_Kalaga_National_Park_01.jpg', name: 'Mount_Kalaga_National_Park_01' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Mount_Kalaga_National_Park_02.jpg', name: 'Mount_Kalaga_National_Park_02' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Mount_Kalaga_National_Park_03.jpg', name: 'Mount_Kalaga_National_Park_03' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Mount_Kalaga_National_Park_04.jpg', name: 'Mount_Kalaga_National_Park_04' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Mount_Kalaga_National_Park_05.jpg', name: 'Mount_Kalaga_National_Park_05' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Mount_Kalaga_National_Park_06.jpg', name: 'Mount_Kalaga_National_Park_06' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Port_Gellhorn_01.jpg', name: 'Port_Gellhorn_01' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Port_Gellhorn_02.jpg', name: 'Port_Gellhorn_02' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Port_Gellhorn_03.jpg', name: 'Port_Gellhorn_03' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Port_Gellhorn_04.jpg', name: 'Port_Gellhorn_04' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Port_Gellhorn_05.jpg', name: 'Port_Gellhorn_05' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Raul_Bautista_landscape.jpg', name: 'Raul_Bautista_landscape' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Vice_City_01.jpg', name: 'Vice_City_01' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Vice_City_02.jpg', name: 'Vice_City_02' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Vice_City_03.jpg', name: 'Vice_City_03' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Vice_City_04.jpg', name: 'Vice_City_04' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Vice_City_05.jpg', name: 'Vice_City_05' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Vice_City_06.jpg', name: 'Vice_City_06' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Vice_City_07.jpg', name: 'Vice_City_07' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Vice_City_08.jpg', name: 'Vice_City_08' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Vice_City_09.jpg', name: 'Vice_City_09' },
+        ];
+        let currentThemeIndex = 0; 
+        let previousThemeIndex = -1; // To help avoid immediate repeats
+
+        // --- DOM Elements ---
+        const progressBar = document.getElementById('progressBar');
+        const percentageText = document.getElementById('percentageText');
+        const targetDateDisplay = document.getElementById('targetDateDisplay');
+        const startDateDisplay = document.getElementById('startDateDisplay');
+        const mainTitle = document.getElementById('mainTitle');
+        const generateFactButton = document.getElementById('generateFactButton');
+        const factTextElement = document.getElementById('factText');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const daysEl = document.getElementById('days');
+        const hoursEl = document.getElementById('hours');
+        const minutesEl = document.getElementById('minutes');
+        const secondsEl = document.getElementById('seconds');
+        const changeThemeButton = document.getElementById('changeThemeButton'); 
+
+        // --- Date Formatting ---
+        const dateDisplayOptions = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' };
+        startDateDisplay.textContent = startDate.toLocaleDateString('en-US', dateDisplayOptions);
+        targetDateDisplay.textContent = targetDate.toLocaleDateString('en-US', dateDisplayOptions);
+        
+        // --- Change Background Function (Button Click with Preloading & Randomization) ---
+        function changeTheme() {
+            if (backgroundImages.length === 0) return;
+            if (backgroundImages.length === 1) { // Only one image, no change needed
+                if (changeThemeButton) changeThemeButton.disabled = true; // Disable button if only one image
+                return;
+            }
+
+            changeThemeButton.disabled = true;
+            changeThemeButton.classList.add('loading'); 
+            changeThemeButton.textContent = '🎨...'; 
+
+            let newRandomIndex;
+            do {
+                newRandomIndex = Math.floor(Math.random() * backgroundImages.length);
+            } while (newRandomIndex === currentThemeIndex); // Ensure new image is different from current
+
+            currentThemeIndex = newRandomIndex; // Update currentThemeIndex after finding a new one
+            
+            let nextImageUrl = null;
+            let attempts = 0;
+            let tempIndex = currentThemeIndex; // Start checking from the new random index
+
+            // Find the next valid image URL, skipping problematic ones
+            while(attempts < backgroundImages.length) {
+                const potentialNextUrl = backgroundImages[tempIndex].url;
+                if (potentialNextUrl && potentialNextUrl.match(/\.(jpeg|jpg|gif|png)$/i)) { 
+                    nextImageUrl = potentialNextUrl;
+                    currentThemeIndex = tempIndex; // Update the actual currentThemeIndex to this valid one
+                    break;
+                }
+                console.warn("Skipping invalid image URL:", potentialNextUrl, "at index:", tempIndex);
+                tempIndex = (tempIndex + 1) % backgroundImages.length; 
+                attempts++;
+            }
+
+            if (!nextImageUrl) { 
+                console.error("No valid image URLs found in the array after checking all.");
+                changeThemeButton.disabled = false;
+                changeThemeButton.classList.remove('loading');
+                changeThemeButton.textContent = '🎨';
+                return;
+            }
+
+            const img = new Image();
+            img.onload = () => {
+                document.body.style.backgroundImage = `url('${nextImageUrl}')`;
+                changeThemeButton.disabled = false;
+                changeThemeButton.classList.remove('loading');
+                changeThemeButton.textContent = '🎨';
+            };
+            img.onerror = () => {
+                console.error("Failed to load image:", nextImageUrl);
+                changeThemeButton.disabled = false;
+                changeThemeButton.classList.remove('loading');
+                changeThemeButton.textContent = '🎨';
+            };
+            img.src = nextImageUrl;
+        }
+        
+        if (changeThemeButton) {
+            changeThemeButton.addEventListener('click', changeTheme);
+        }
+
+        // --- Core Countdown Update ---
+        function updateProgress() {
+            const now = new Date();
+            const totalMilliseconds = targetDate.getTime() - startDate.getTime();
+            const elapsedMilliseconds = now.getTime() - startDate.getTime();
+            let percentage = (totalMilliseconds > 0) ? (elapsedMilliseconds / totalMilliseconds) * 100 : 100;
+            percentage = Math.max(0, Math.min(100, percentage));
+            progressBar.style.width = percentage + '%';
+            percentageText.textContent = percentage.toFixed(3) + '%';
+
+            const remainingMilliseconds = targetDate.getTime() - now.getTime();
+            const format = (num) => num < 10 ? '0' + num : num;
+
+            if (remainingMilliseconds > 0) {
+                const totalSeconds = Math.floor(remainingMilliseconds / 1000);
+                const totalMinutes = Math.floor(totalSeconds / 60);
+                const totalHours = Math.floor(totalMinutes / 60);
+                const days = Math.floor(totalHours / 24);
+                const hours = totalHours % 24;
+                const minutes = totalMinutes % 60;
+                const seconds = totalSeconds % 60;
+                daysEl.textContent = days; hoursEl.textContent = format(hours); minutesEl.textContent = format(minutes); secondsEl.textContent = format(seconds);
+            } else {
+                daysEl.textContent = '0'; hoursEl.textContent = '00'; minutesEl.textContent = '00'; secondsEl.textContent = '00';
+            }
+
+            if (percentage >= 100) {
+                mainTitle.textContent = `Reached Target! 🎉`;
+            } else {
+                mainTitle.textContent = "Grand Theft Auto VI";
+            }
+        }
+
+        // --- Gemini API Fun Fact ---
+        async function generateFact() {
+            factTextElement.classList.add('hidden');
+            loadingIndicator.classList.remove('hidden');
+            generateFactButton.disabled = true;
+            const prompt = "Provide an interesting and accurate fun fact about any game from Rockstar Games (e.g., Grand Theft Auto series, Red Dead Redemption series, Bully, Max Payne, etc.) or the company itself. Aim for variety in the game or topic if possible, also provide the less known facts. Allways stick to facts, if youre not sure about its authenticity find another. Keep it concise and present it as a standalone fact under 50 words.";
+            let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+            const payload = { contents: chatHistory };
+            const apiKey = ""; // API key
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) { let errorDetails = `HTTP error! status: ${response.status}`; try { const errorData = await response.json(); errorDetails += ` - ${errorData.error?.message || 'No specific error message.'}`; } catch (e) {} throw new Error(errorDetails); }
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    factTextElement.textContent = result.candidates[0].content.parts[0].text;
+                } else {
+                    factTextElement.textContent = "Couldn't retrieve a fact this time. Please try again.";
+                    console.error("Unexpected API response structure:", result);
+                }
+            } catch (error) {
+                console.error("Error generating fact:", error);
+                factTextElement.textContent = "Oops! Couldn't connect to the fact database. Check console for details or try again later.";
+            } finally {
+                loadingIndicator.classList.add('hidden');
+                factTextElement.classList.remove('hidden');
+                generateFactButton.disabled = false;
+            }
+        }
+        generateFactButton.addEventListener('click', generateFact);
+
+        // --- Initial Setup ---
+        function setInitialBackground() {
+            if (backgroundImages.length > 0) {
+                let initialBgUrl = null;
+                let initialIndex = 0;
+                // Try to find the first valid image URL
+                for (let i = 0; i < backgroundImages.length; i++) {
+                    if (backgroundImages[i] && backgroundImages[i].url && backgroundImages[i].url.match(/\.(jpeg|jpg|gif|png)$/i)) {
+                        initialBgUrl = backgroundImages[i].url;
+                        currentThemeIndex = i; // Set currentThemeIndex to the first valid image
+                        previousThemeIndex = i; // Initialize previousThemeIndex
+                        break;
+                    }
+                }
+                if (!initialBgUrl) { // If no valid image found in the list, use a hardcoded default
+                    initialBgUrl = 'https://cdn.mos.cms.futurecdn.net/hBWx3UpU2Je2zJqrHLyUQW.jpg'; 
+                    const defaultInArray = backgroundImages.findIndex(img => img.url === initialBgUrl);
+                    if (defaultInArray !== -1) {
+                        currentThemeIndex = defaultInArray;
+                        previousThemeIndex = defaultInArray;
+                    } else {
+                        // If default isn't in array, add it or handle as error
+                        console.warn("Default background not in image list. Using hardcoded default.");
+                        backgroundImages.unshift({url: initialBgUrl, name: "Default Fallback"}); // Add to list
+                        currentThemeIndex = 0;
+                        previousThemeIndex = 0;
+                    }
+                }
+                document.body.style.backgroundImage = `url('${initialBgUrl}')`;
+            }
+        }
+        
+        updateProgress(); 
+        setInitialBackground(); // Set initial background
+        setInterval(updateProgress, 100); 
+
+    </script>
+</body>
+</html>
