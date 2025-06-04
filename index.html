@@ -327,12 +327,12 @@
             let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
             const payload = { contents: chatHistory };
             const apiKey = ""; // API key
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+            const functionUrl = '/.netlify/functions/getFact'; // Path to your serverless function
             try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                const response = await fetch(functionUrl, { // Call your function
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: prompt }) // Send the prompt TO your function
                 });
                 if (!response.ok) { let errorDetails = `HTTP error! status: ${response.status}`; try { const errorData = await response.json(); errorDetails += ` - ${errorData.error?.message || 'No specific error message.'}`; } catch (e) {} throw new Error(errorDetails); }
                 const result = await response.json();
