@@ -11,20 +11,19 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            /* Default background, will be changed by JS */
             background-image: url(https://cdn.mos.cms.futurecdn.net/hBWx3UpU2Je2zJqrHLyUQW.jpg);
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             background-attachment: fixed;
-            transition: background-image 0.7s ease-in-out; /* Smooth background transition */
+            transition: background-image 0.7s ease-in-out;
             overflow-x: hidden; 
         }
         .content-overlay {
             background-color: rgba(0, 0, 0, 0.65); 
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            position: relative; /* For positioning the theme button */
+            position: relative; 
         }
         .font-roboto-mono {
             font-family: 'Roboto Mono', monospace;
@@ -32,8 +31,7 @@
         .text-shadow {
             text-shadow: 0 2px 5px rgba(0,0,0,0.5);
         }
-
-        .action-button { /* For the fact button */
+        .action-button {
             transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.3s ease;
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
         }
@@ -46,7 +44,6 @@
         .fact-button:hover {
             background-color: #0d9488; /* Teal-600 */
         }
-        
         .output-text-container {
             min-height: 80px;
             background-color: rgba(255, 255, 255, 0.05);
@@ -54,7 +51,7 @@
         }
         .loader {
             border: 4px solid #f3f3f330;
-            border-top: 4px solid #14b8a6; /* Teal for fact loader */
+            border-top: 4px solid #14b8a6; 
             border-radius: 50%;
             width: 24px;
             height: 24px;
@@ -65,18 +62,16 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
-        /* Simple Theme Button Style */
         .simple-theme-button {
             position: absolute;
             top: 10px;
             right: 10px;
-            background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent white */
+            background-color: rgba(255, 255, 255, 0.2); 
             border: 1px solid rgba(255, 255, 255, 0.3);
             color: white;
-            padding: 6px 10px; /* Smaller padding */
-            border-radius: 0.375rem; /* rounded-md */
-            font-size: 0.875rem; /* text-sm */
+            padding: 6px 10px; 
+            border-radius: 0.375rem; 
+            font-size: 0.875rem; 
             cursor: pointer;
             transition: background-color 0.3s ease, transform 0.1s ease, opacity 0.3s ease;
             z-index: 10; 
@@ -87,13 +82,21 @@
         .simple-theme-button:active {
             transform: scale(0.95);
         }
-        .simple-theme-button.loading { /* Style for button when preloading */
+        .simple-theme-button.loading { 
             opacity: 0.7;
             cursor: wait;
         }
-        /* Styling for the clickable title */
         #mainTitleLink:hover {
-            text-decoration: underline; /* Optional: add underline on hover */
+            text-decoration: underline; 
+        }
+        /* Disclaimer Style */
+        .disclaimer {
+            font-size: 0.65rem; /* Made a bit smaller */
+            color: rgba(255, 255, 255, 0.5); /* Dimmed white */
+            text-align: center;
+            margin-top: 20px; /* Space above the disclaimer */
+            padding-top: 10px; /* Space within the disclaimer area if needed */
+            border-top: 1px solid rgba(255, 255, 255, 0.1); /* Subtle separator line */
         }
     </style>
 </head>
@@ -104,7 +107,6 @@
             🎨
         </button>
 
-        <!-- Title is now a clickable link -->
         <a id="mainTitleLink" href="https://www.rockstargames.com/VI/downloads" target="_blank" rel="noopener noreferrer" class="block text-xl sm:text-2xl font-semibold text-center text-pink-300 tracking-wide text-shadow mb-6 sm:mb-8 no-underline hover:underline">
             <h1 id="mainTitle">Grand Theft Auto VI</h1>
         </a>
@@ -155,6 +157,12 @@
                 </div>
             </div>
         </div>
+
+        <!-- Disclaimer Section -->
+        <div class="disclaimer">
+            <p>All images, game titles, and related content are trademarks and copyrights of Rockstar Games, Take-Two Interactive, or their respective licensors. This is an unofficial fan-made project created for entertainment and informational purposes only.</p>
+        </div>
+        <!-- End Disclaimer Section -->
     </div>
 
     <script>
@@ -165,10 +173,6 @@
 
         // --- Background Image URLs (Your provided list) ---
         const backgroundImages = [
-            // Ensure these are direct links to image files (e.g., .jpg, .png)
-            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Jason_and_Lucia_01_landscape.jpg', name: 'Jason_and_Lucia_01_landscape' },
-            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Jason_and_Lucia_02_With_Logos_landscape.jpg', name: 'Jason_and_Lucia_02_With_Logos_landscape' },
-            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Jason_and_Lucia_Motel_landscape.jpg', name: 'Jason_and_Lucia_Motel_landscape' },
             { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Ambrosia_01.jpg', name: 'Ambrosia_01' },
             { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Ambrosia_02.jpg', name: 'Ambrosia_02' },
             { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Ambrosia_03.jpg', name: 'Ambrosia_03' },
@@ -179,6 +183,9 @@
             { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Grassrivers_02.jpg', name: 'Grassrivers_02' },
             { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Grassrivers_03.jpg', name: 'Grassrivers_03' },
             { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Grassrivers_04.jpg', name: 'Grassrivers_04' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Jason_and_Lucia_01_landscape.jpg', name: 'Jason_and_Lucia_01_landscape' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Jason_and_Lucia_02_With_Logos_landscape.jpg', name: 'Jason_and_Lucia_02_With_Logos_landscape' },
+            { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Jason_and_Lucia_Motel_landscape.jpg', name: 'Jason_and_Lucia_Motel_landscape' },
             { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Leonida_Keys_01.jpg', name: 'Leonida_Keys_01' },
             { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Leonida_Keys_02.jpg', name: 'Leonida_Keys_02' },
             { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Leonida_Keys_03.jpg', name: 'Leonida_Keys_03' },
@@ -208,14 +215,14 @@
         ];
         let currentThemeIndex = 0; 
         let previousThemeIndex = -1; 
-        let autoThemeIntervalId = null; // To store the interval ID for the timer
+        let autoThemeIntervalId = null; 
 
         // --- DOM Elements ---
         const progressBar = document.getElementById('progressBar');
         const percentageText = document.getElementById('percentageText');
         const targetDateDisplay = document.getElementById('targetDateDisplay');
         const startDateDisplay = document.getElementById('startDateDisplay');
-        const mainTitleElement = document.getElementById('mainTitle'); // Renamed to avoid conflict with h1
+        const mainTitleElement = document.getElementById('mainTitle'); 
         const generateFactButton = document.getElementById('generateFactButton');
         const factTextElement = document.getElementById('factText');
         const loadingIndicator = document.getElementById('loadingIndicator');
@@ -231,7 +238,7 @@
         targetDateDisplay.textContent = targetDate.toLocaleDateString('en-US', dateDisplayOptions);
         
         // --- Change Background Function (Button Click with Preloading & Randomization) ---
-        function changeTheme(isAuto = false) { // Added isAuto flag
+        function changeTheme(isAuto = false) { 
             if (backgroundImages.length === 0) return;
             if (backgroundImages.length === 1 && !isAuto) { 
                 if (changeThemeButton) changeThemeButton.disabled = true; 
@@ -257,7 +264,6 @@
 
             while(attempts < backgroundImages.length) {
                 const potentialNextUrl = backgroundImages[tempIndex].url;
-                // Check if URL is not the problematic ".github" folder link and is an image
                 if (potentialNextUrl && !potentialNextUrl.endsWith('/.github') && potentialNextUrl.match(/\.(jpeg|jpg|gif|png)$/i)) { 
                     nextImageUrl = potentialNextUrl;
                     currentThemeIndex = tempIndex; 
@@ -300,18 +306,18 @@
         
         // --- Automatic Theme Change Timer ---
         function startAutoThemeChange() {
-            if (autoThemeIntervalId) clearInterval(autoThemeIntervalId); // Clear existing timer
-            if (backgroundImages.length > 1) { // Only start if there's more than one image
+            if (autoThemeIntervalId) clearInterval(autoThemeIntervalId); 
+            if (backgroundImages.length > 1) { 
                  autoThemeIntervalId = setInterval(() => {
-                    changeTheme(true); // Pass true to indicate it's an auto change
+                    changeTheme(true); 
                  }, AUTO_THEME_INTERVAL);
             }
         }
 
         if (changeThemeButton) {
             changeThemeButton.addEventListener('click', () => {
-                changeTheme(false); // Manual change
-                startAutoThemeChange(); // Restart timer on manual click
+                changeTheme(false); 
+                startAutoThemeChange(); 
             });
         }
 
@@ -341,8 +347,7 @@
                 daysEl.textContent = '0'; hoursEl.textContent = '00'; minutesEl.textContent = '00'; secondsEl.textContent = '00';
             }
 
-            // Update main title text based on countdown completion
-            const titleH1 = document.getElementById('mainTitle'); // Get the H1 inside the link
+            const titleH1 = document.getElementById('mainTitle'); 
             if (percentage >= 100) {
                 if (titleH1) titleH1.textContent = `Reached Target! 🎉`;
             } else {
@@ -393,7 +398,6 @@
                 let initialBgUrl = null;
                 let initialIndex = 0;
                 for (let i = 0; i < backgroundImages.length; i++) {
-                    // Check if URL is not the problematic ".github" folder link and is an image
                     if (backgroundImages[i] && backgroundImages[i].url && 
                         !backgroundImages[i].url.endsWith('/.github') && 
                         backgroundImages[i].url.match(/\.(jpeg|jpg|gif|png)$/i)) {
@@ -411,10 +415,6 @@
                         previousThemeIndex = defaultInArray;
                     } else {
                         console.warn("Default background not in image list. Using hardcoded default.");
-                        // Optionally add to list if you want it in the rotation
-                        // backgroundImages.unshift({url: initialBgUrl, name: "Default Fallback"}); 
-                        // currentThemeIndex = 0;
-                        // previousThemeIndex = 0;
                     }
                 }
                 document.body.style.backgroundImage = `url('${initialBgUrl}')`;
@@ -423,7 +423,7 @@
         
         updateProgress(); 
         setInitialBackground(); 
-        startAutoThemeChange(); // Start the automatic slideshow
+        startAutoThemeChange(); 
         setInterval(updateProgress, 100); 
 
     </script>
