@@ -91,6 +91,10 @@
             opacity: 0.7;
             cursor: wait;
         }
+        /* Styling for the clickable title */
+        #mainTitleLink:hover {
+            text-decoration: underline; /* Optional: add underline on hover */
+        }
     </style>
 </head>
 <body class="text-white min-h-screen flex flex-col items-center justify-center p-4 selection:bg-teal-500 selection:text-white">
@@ -100,7 +104,10 @@
             🎨
         </button>
 
-        <h1 id="mainTitle" class="text-xl sm:text-2xl font-semibold text-center text-pink-300 tracking-wide text-shadow mb-6 sm:mb-8">Grand Theft Auto VI</h1>
+        <!-- Title is now a clickable link -->
+        <a id="mainTitleLink" href="https://www.rockstargames.com/VI/downloads" target="_blank" rel="noopener noreferrer" class="block text-xl sm:text-2xl font-semibold text-center text-pink-300 tracking-wide text-shadow mb-6 sm:mb-8 no-underline hover:underline">
+            <h1 id="mainTitle">Grand Theft Auto VI</h1>
+        </a>
 
         <div class="text-center my-4 sm:my-6">
             <div id="percentageText" class="font-roboto-mono text-4xl sm:text-5xl lg:text-6xl font-bold text-teal-300 text-shadow">
@@ -154,6 +161,7 @@
         // --- Configuration ---
         const startDate = new Date(Date.UTC(2025, 4, 26, 0, 0, 0)); 
         const targetDate = new Date(Date.UTC(2026, 4, 26, 0, 0, 0)); 
+        const AUTO_THEME_INTERVAL = 20000; // 20 seconds
 
         // --- Background Image URLs (Your provided list) ---
         const backgroundImages = [
@@ -199,14 +207,15 @@
             { url: 'https://raw.githubusercontent.com/DiligentCube007/GTA-VI-Countdown/main/images/Vice_City_09.jpg', name: 'Vice_City_09' },
         ];
         let currentThemeIndex = 0; 
-        let previousThemeIndex = -1; // To help avoid immediate repeats
+        let previousThemeIndex = -1; 
+        let autoThemeIntervalId = null; // To store the interval ID for the timer
 
         // --- DOM Elements ---
         const progressBar = document.getElementById('progressBar');
         const percentageText = document.getElementById('percentageText');
         const targetDateDisplay = document.getElementById('targetDateDisplay');
         const startDateDisplay = document.getElementById('startDateDisplay');
-        const mainTitle = document.getElementById('mainTitle');
+        const mainTitleElement = document.getElementById('mainTitle'); // Renamed to avoid conflict with h1
         const generateFactButton = document.getElementById('generateFactButton');
         const factTextElement = document.getElementById('factText');
         const loadingIndicator = document.getElementById('loadingIndicator');
@@ -222,67 +231,88 @@
         targetDateDisplay.textContent = targetDate.toLocaleDateString('en-US', dateDisplayOptions);
         
         // --- Change Background Function (Button Click with Preloading & Randomization) ---
-        function changeTheme() {
+        function changeTheme(isAuto = false) { // Added isAuto flag
             if (backgroundImages.length === 0) return;
-            if (backgroundImages.length === 1) { // Only one image, no change needed
-                if (changeThemeButton) changeThemeButton.disabled = true; // Disable button if only one image
+            if (backgroundImages.length === 1 && !isAuto) { 
+                if (changeThemeButton) changeThemeButton.disabled = true; 
                 return;
             }
 
-            changeThemeButton.disabled = true;
-            changeThemeButton.classList.add('loading'); 
-            changeThemeButton.textContent = '🎨...'; 
+            if (changeThemeButton) {
+                changeThemeButton.disabled = true;
+                changeThemeButton.classList.add('loading'); 
+                changeThemeButton.textContent = '🎨...'; 
+            }
 
             let newRandomIndex;
             do {
                 newRandomIndex = Math.floor(Math.random() * backgroundImages.length);
-            } while (newRandomIndex === currentThemeIndex); // Ensure new image is different from current
+            } while (newRandomIndex === currentThemeIndex && backgroundImages.length > 1); 
 
-            currentThemeIndex = newRandomIndex; // Update currentThemeIndex after finding a new one
+            currentThemeIndex = newRandomIndex; 
             
             let nextImageUrl = null;
             let attempts = 0;
-            let tempIndex = currentThemeIndex; // Start checking from the new random index
+            let tempIndex = currentThemeIndex; 
 
-            // Find the next valid image URL, skipping problematic ones
             while(attempts < backgroundImages.length) {
                 const potentialNextUrl = backgroundImages[tempIndex].url;
-                if (potentialNextUrl && potentialNextUrl.match(/\.(jpeg|jpg|gif|png)$/i)) { 
+                // Check if URL is not the problematic ".github" folder link and is an image
+                if (potentialNextUrl && !potentialNextUrl.endsWith('/.github') && potentialNextUrl.match(/\.(jpeg|jpg|gif|png)$/i)) { 
                     nextImageUrl = potentialNextUrl;
-                    currentThemeIndex = tempIndex; // Update the actual currentThemeIndex to this valid one
+                    currentThemeIndex = tempIndex; 
                     break;
                 }
-                console.warn("Skipping invalid image URL:", potentialNextUrl, "at index:", tempIndex);
+                console.warn("Skipping invalid/folder image URL:", potentialNextUrl, "at index:", tempIndex);
                 tempIndex = (tempIndex + 1) % backgroundImages.length; 
                 attempts++;
             }
 
             if (!nextImageUrl) { 
                 console.error("No valid image URLs found in the array after checking all.");
-                changeThemeButton.disabled = false;
-                changeThemeButton.classList.remove('loading');
-                changeThemeButton.textContent = '🎨';
+                if (changeThemeButton) {
+                    changeThemeButton.disabled = false;
+                    changeThemeButton.classList.remove('loading');
+                    changeThemeButton.textContent = '🎨';
+                }
                 return;
             }
 
             const img = new Image();
             img.onload = () => {
                 document.body.style.backgroundImage = `url('${nextImageUrl}')`;
-                changeThemeButton.disabled = false;
-                changeThemeButton.classList.remove('loading');
-                changeThemeButton.textContent = '🎨';
+                if (changeThemeButton) {
+                    changeThemeButton.disabled = false;
+                    changeThemeButton.classList.remove('loading');
+                    changeThemeButton.textContent = '🎨';
+                }
             };
             img.onerror = () => {
                 console.error("Failed to load image:", nextImageUrl);
-                changeThemeButton.disabled = false;
-                changeThemeButton.classList.remove('loading');
-                changeThemeButton.textContent = '🎨';
+                if (changeThemeButton) {
+                    changeThemeButton.disabled = false;
+                    changeThemeButton.classList.remove('loading');
+                    changeThemeButton.textContent = '🎨';
+                }
             };
             img.src = nextImageUrl;
         }
         
+        // --- Automatic Theme Change Timer ---
+        function startAutoThemeChange() {
+            if (autoThemeIntervalId) clearInterval(autoThemeIntervalId); // Clear existing timer
+            if (backgroundImages.length > 1) { // Only start if there's more than one image
+                 autoThemeIntervalId = setInterval(() => {
+                    changeTheme(true); // Pass true to indicate it's an auto change
+                 }, AUTO_THEME_INTERVAL);
+            }
+        }
+
         if (changeThemeButton) {
-            changeThemeButton.addEventListener('click', changeTheme);
+            changeThemeButton.addEventListener('click', () => {
+                changeTheme(false); // Manual change
+                startAutoThemeChange(); // Restart timer on manual click
+            });
         }
 
         // --- Core Countdown Update ---
@@ -311,10 +341,12 @@
                 daysEl.textContent = '0'; hoursEl.textContent = '00'; minutesEl.textContent = '00'; secondsEl.textContent = '00';
             }
 
+            // Update main title text based on countdown completion
+            const titleH1 = document.getElementById('mainTitle'); // Get the H1 inside the link
             if (percentage >= 100) {
-                mainTitle.textContent = `Reached Target! 🎉`;
+                if (titleH1) titleH1.textContent = `Reached Target! 🎉`;
             } else {
-                mainTitle.textContent = "Grand Theft Auto VI";
+                if (titleH1) titleH1.textContent = "Grand Theft Auto VI";
             }
         }
 
@@ -327,12 +359,12 @@
             let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
             const payload = { contents: chatHistory };
             const apiKey = ""; // API key
-            const functionUrl = '/.netlify/functions/getFact'; // Path to your serverless function
+            const functionUrl = '/.netlify/functions/getFact'; 
             try {
-                const response = await fetch(functionUrl, { // Call your function
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: prompt }) // Send the prompt TO your function
+                const response = await fetch(functionUrl, { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: prompt }) 
                 });
                 if (!response.ok) { let errorDetails = `HTTP error! status: ${response.status}`; try { const errorData = await response.json(); errorDetails += ` - ${errorData.error?.message || 'No specific error message.'}`; } catch (e) {} throw new Error(errorDetails); }
                 const result = await response.json();
@@ -360,27 +392,29 @@
             if (backgroundImages.length > 0) {
                 let initialBgUrl = null;
                 let initialIndex = 0;
-                // Try to find the first valid image URL
                 for (let i = 0; i < backgroundImages.length; i++) {
-                    if (backgroundImages[i] && backgroundImages[i].url && backgroundImages[i].url.match(/\.(jpeg|jpg|gif|png)$/i)) {
+                    // Check if URL is not the problematic ".github" folder link and is an image
+                    if (backgroundImages[i] && backgroundImages[i].url && 
+                        !backgroundImages[i].url.endsWith('/.github') && 
+                        backgroundImages[i].url.match(/\.(jpeg|jpg|gif|png)$/i)) {
                         initialBgUrl = backgroundImages[i].url;
-                        currentThemeIndex = i; // Set currentThemeIndex to the first valid image
-                        previousThemeIndex = i; // Initialize previousThemeIndex
+                        currentThemeIndex = i; 
+                        previousThemeIndex = i; 
                         break;
                     }
                 }
-                if (!initialBgUrl) { // If no valid image found in the list, use a hardcoded default
+                if (!initialBgUrl) { 
                     initialBgUrl = 'https://cdn.mos.cms.futurecdn.net/hBWx3UpU2Je2zJqrHLyUQW.jpg'; 
                     const defaultInArray = backgroundImages.findIndex(img => img.url === initialBgUrl);
                     if (defaultInArray !== -1) {
                         currentThemeIndex = defaultInArray;
                         previousThemeIndex = defaultInArray;
                     } else {
-                        // If default isn't in array, add it or handle as error
                         console.warn("Default background not in image list. Using hardcoded default.");
-                        backgroundImages.unshift({url: initialBgUrl, name: "Default Fallback"}); // Add to list
-                        currentThemeIndex = 0;
-                        previousThemeIndex = 0;
+                        // Optionally add to list if you want it in the rotation
+                        // backgroundImages.unshift({url: initialBgUrl, name: "Default Fallback"}); 
+                        // currentThemeIndex = 0;
+                        // previousThemeIndex = 0;
                     }
                 }
                 document.body.style.backgroundImage = `url('${initialBgUrl}')`;
@@ -388,7 +422,8 @@
         }
         
         updateProgress(); 
-        setInitialBackground(); // Set initial background
+        setInitialBackground(); 
+        startAutoThemeChange(); // Start the automatic slideshow
         setInterval(updateProgress, 100); 
 
     </script>
